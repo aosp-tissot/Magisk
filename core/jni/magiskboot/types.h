@@ -15,7 +15,8 @@ typedef enum {
     LZ4,
     LZ4_LEGACY,
     MTK,
-    DTB
+    DTB,
+    EMPTY
 } file_t;
 
 #define COMPRESSED(type)  (type >= GZIP && type <= LZ4_LEGACY)
@@ -36,7 +37,7 @@ typedef enum {
 #define SUP_LIST      ((char *[]) { "gzip", "xz", "lzma", "bzip2", "lz4", "lz4_legacy", NULL })
 #define SUP_EXT_LIST  ((char *[]) { "gz", "xz", "lzma", "bz2", "lz4", "lz4", NULL })
 
-file_t check_type(const void *buf);
+file_t check_type(const void *buf, int len);
 void get_type_name(file_t type, char *name);
 
 #endif

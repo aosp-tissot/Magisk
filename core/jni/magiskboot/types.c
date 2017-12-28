@@ -3,7 +3,9 @@
 #include "bootimg.h"
 #include "types.h"
 
-file_t check_type(const void *buf) {
+file_t check_type(const void *buf, int length) {
+	if(length == 0) return EMPTY;
+
 	if (memcmp(buf, CHROMEOS_MAGIC, 8) == 0) {
 		return CHROMEOS;
 	} else if (memcmp(buf, BOOT_MAGIC, BOOT_MAGIC_SIZE) == 0) {
@@ -71,6 +73,9 @@ void get_type_name(file_t type, char *name) {
 			break;
 		case DTB:
 			s = "dtb";
+			break;
+		case EMPTY:
+			s = "empty";
 			break;
 		default:
 			s = "raw";

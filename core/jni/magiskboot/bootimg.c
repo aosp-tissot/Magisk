@@ -64,7 +64,8 @@ int parse_img(const char *image, boot_img *boot) {
 	// Parse image
 	fprintf(stderr, "Parsing boot image: [%s]\n", image);
 	for (size_t pos = 0; pos < boot->map_size; pos += 256) {
-		switch (check_type(boot->map_addr + pos)) {
+		size_t remaining = boot->map_size - pos;
+		switch (check_type(boot->map_addr + pos, remaining)) {
 		case CHROMEOS:
 			// The caller should know it's chromeos, as it needs additional signing
 			boot->flags |= CHROMEOS_FLAG;
@@ -115,8 +116,8 @@ int parse_img(const char *image, boot_img *boot) {
 				}
 			}
 
-			boot->ramdisk_type = check_type(boot->ramdisk);
-			boot->kernel_type = check_type(boot->kernel);
+			boot->ramdisk_type = check_type(boot->ramdisk, boot->hdr.ramdisk_size);
+			boot->kernel_type = check_type(boot->kernel, boot->hdr.kernel_size);
 
 			// Check MTK
 			if (boot->kernel_type == MTK) {
@@ -125,7 +126,7 @@ int parse_img(const char *image, boot_img *boot) {
 				memcpy(&boot->mtk_kernel_hdr, boot->kernel, sizeof(mtk_hdr));
 				boot->kernel += 512;
 				boot->hdr.kernel_size -= 512;
-				boot->kernel_type = check_type(boot->kernel);
+				boot->kernel_type = check_type(boot->kernel, boot->hdr.kernel_size);
 			}
 			if (boot->ramdisk_type == MTK) {
 				fprintf(stderr, "MTK_RAMDISK_HDR [512]\n");
@@ -133,7 +134,7 @@ int parse_img(const char *image, boot_img *boot) {
 				memcpy(&boot->mtk_ramdisk_hdr, boot->ramdisk, sizeof(mtk_hdr));
 				boot->ramdisk += 512;
 				boot->hdr.ramdisk_size -= 512;
-				boot->ramdisk_type = check_type(boot->ramdisk);
+				boot->ramdisk_type = check_type(boot->ramdisk, boot->hdr.ramdisk_size);
 			}
 
 			char fmt[16];
